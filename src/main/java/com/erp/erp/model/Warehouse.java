@@ -7,29 +7,24 @@ import java.time.LocalDateTime;
 import com.erp.erp.security.SecurityUtil;
 
 @Entity
-@Table(name = "suppliers")
+@Table(name = "warehouses")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Supplier {
+public class Warehouse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    private String name;
+    private String address;
     private String code;
 
-    @Column(nullable = false)
-    private String name;
-
-    private String email;
-    private String phone;
-    private String address;
-    private String website;
-    private String npwp;
-    private Boolean active = true;
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
     // Audit fields
     private String createdBy;

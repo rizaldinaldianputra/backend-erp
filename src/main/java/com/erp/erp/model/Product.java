@@ -1,10 +1,8 @@
 package com.erp.erp.model;
 
+import com.erp.erp.security.SecurityUtil;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -43,10 +41,23 @@ public class Product {
 
     private Boolean active = true;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+    // Audit fields
+    private String createdBy;
+    private LocalDateTime createdDate;
+    private String updatedBy;
+    private LocalDateTime updatedDate;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        this.createdDate = LocalDateTime.now();
+        if (this.createdBy == null) {
+            this.createdBy = SecurityUtil.getCurrentUsername();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedDate = LocalDateTime.now();
+        this.updatedBy = SecurityUtil.getCurrentUsername();
+    }
 }

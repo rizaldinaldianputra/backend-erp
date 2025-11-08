@@ -1,17 +1,17 @@
 package com.erp.erp.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDateTime;
+
+import com.erp.erp.security.SecurityUtil;
 
 @Entity
 @Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -22,8 +22,7 @@ public class User {
     private String password;
     private String email;
 
-    // Tambahkan field role (misal: ADMIN, USER, MANAGER)
-    private String role;
+    private String role; // ADMIN, USER, MANAGER, dsb
 
     // Audit fields
     private String createdBy;
@@ -31,18 +30,21 @@ public class User {
     private String updatedBy;
     private LocalDateTime updatedDate;
 
-    // Bisa tambahkan convenience getter
-    public String getFullName() {
-        return this.username; // atau gabungkan nama depan-belakang kalau punya
-    }
-
     @PrePersist
     protected void onCreate() {
         this.createdDate = LocalDateTime.now();
+        if (this.createdBy == null) {
+            this.createdBy = SecurityUtil.getCurrentUsername();
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedDate = LocalDateTime.now();
+        this.updatedBy = SecurityUtil.getCurrentUsername();
+    }
+
+    public String getFullName() {
+        return this.username;
     }
 }
