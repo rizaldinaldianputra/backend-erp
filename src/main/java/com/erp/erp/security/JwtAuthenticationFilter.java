@@ -1,4 +1,4 @@
-package com.erp.erp.config.security;
+package com.erp.erp.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

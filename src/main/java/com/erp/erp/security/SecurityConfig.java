@@ -1,4 +1,6 @@
-package com.erp.erp.config.security;
+package com.erp.erp.security;
+
+import static com.erp.erp.security.PublicEndpoint.ALL_WHITELIST;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import static com.erp.erp.config.security.PublicEndpoint.ALL_WHITELIST;
 
 @Configuration
 public class SecurityConfig {

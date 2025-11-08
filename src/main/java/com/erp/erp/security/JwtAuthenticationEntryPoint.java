@@ -1,4 +1,4 @@
-package com.erp.erp.config.security;
+package com.erp.erp.security;
 
 import com.erp.erp.dto.ApiResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;

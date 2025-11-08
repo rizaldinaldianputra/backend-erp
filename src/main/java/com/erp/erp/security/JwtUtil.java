@@ -1,4 +1,4 @@
-package com.erp.erp.config.security;
+package com.erp.erp.security;
 
 import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;

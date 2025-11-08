@@ -1,8 +1,8 @@
 package com.erp.erp.controller;
 
-import com.erp.erp.config.security.JwtUtil;
 import com.erp.erp.dto.ApiResponseDto;
 import com.erp.erp.model.User;
+import com.erp.erp.security.JwtUtil;
 import com.erp.erp.service.UserService;
 
 import org.springframework.http.ResponseEntity;
