@@ -31,7 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // Hanya proses jika ada token, kalau tidak ada jangan hentikan
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
@@ -46,12 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Invalid JWT token: " + e.getMessage());
+                request.setAttribute("errorMessage", "Token invalid atau expired: " + e.getMessage());
             }
         }
 
-        // Pastikan selalu lanjut ke chain
         filterChain.doFilter(request, response);
     }
-
 }

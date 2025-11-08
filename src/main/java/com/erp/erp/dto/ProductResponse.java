@@ -1,4 +1,4 @@
-package com.erp.erp.dto.product;
+package com.erp.erp.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +11,7 @@ public class ProductResponse {
     private String name;
     private String unit;
     private Double costPrice;
-    private String categoryName;  // hanya nama category
+    private String categoryName; // hanya nama category
     private String description;
     private Boolean active;
     private String barcode;

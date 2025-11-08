@@ -1,9 +1,10 @@
 package com.erp.erp.controller;
 
 import com.erp.erp.config.security.JwtUtil;
-import com.erp.erp.dto.ApiResponse;
+import com.erp.erp.dto.ApiResponseDto;
 import com.erp.erp.model.User;
-import com.erp.erp.service.user.UserService;
+import com.erp.erp.service.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +28,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(@RequestBody User user) {
+    public ResponseEntity<ApiResponseDto<User>> register(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedDate(LocalDateTime.now());
         user.setRole("USER"); // default role
         User saved = userService.createUser(user);
         return ResponseEntity.ok(
-                ApiResponse.<User>builder()
+                ApiResponseDto.<User>builder()
                         .status("success")
                         .message("User registered")
                         .data(saved)
@@ -41,7 +42,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Map<String, String>>> login(@RequestBody User loginRequest) {
+    public ResponseEntity<ApiResponseDto<Map<String, String>>> login(@RequestBody User loginRequest) {
         return userService.findByUsername(loginRequest.getUsername())
                 .map(user -> {
                     if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
@@ -50,21 +51,21 @@ public class AuthController {
                         tokenData.put("token", token);
 
                         return ResponseEntity.ok(
-                                ApiResponse.<Map<String, String>>builder()
+                                ApiResponseDto.<Map<String, String>>builder()
                                         .status("success")
                                         .message("Login successful")
                                         .data(tokenData)
                                         .build());
                     } else {
                         return ResponseEntity.status(401).body(
-                                ApiResponse.<Map<String, String>>builder()
+                                ApiResponseDto.<Map<String, String>>builder()
                                         .status("error")
                                         .message("Invalid password")
                                         .data(null)
                                         .build());
                     }
                 }).orElse(ResponseEntity.status(404).body(
-                        ApiResponse.<Map<String, String>>builder()
+                        ApiResponseDto.<Map<String, String>>builder()
                                 .status("error")
                                 .message("User not found")
                                 .data(null)

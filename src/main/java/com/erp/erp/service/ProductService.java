@@ -1,8 +1,7 @@
-package com.erp.erp.service.product.impl;
+package com.erp.erp.service;
 
 import com.erp.erp.model.Product;
 import com.erp.erp.repository.ProductRepository;
-import com.erp.erp.service.product.ProductService;
 import com.erp.erp.util.QRCodeUtil;
 import org.springframework.stereotype.Service;
 
@@ -10,28 +9,26 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProductServiceImpl implements ProductService {
+public class ProductService {
 
     private final ProductRepository productRepository;
     private final QRCodeUtil qrCodeUtil;
 
-    // Constructor injection untuk ProductRepository dan QRCodeUtil
-    public ProductServiceImpl(ProductRepository productRepository, QRCodeUtil qrCodeUtil) {
+    public ProductService(ProductRepository productRepository, QRCodeUtil qrCodeUtil) {
         this.productRepository = productRepository;
         this.qrCodeUtil = qrCodeUtil;
     }
 
-    @Override
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    @Override
+    @SuppressWarnings("null")
+
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
 
-    @Override
     public Product createProduct(Product product) {
         // Generate unique barcode
         String uniqueBarcode = "BC" + System.currentTimeMillis();
@@ -44,7 +41,8 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
-    @Override
+    @SuppressWarnings("null")
+
     public Product updateProduct(Long id, Product product) {
         return productRepository.findById(id)
                 .map(existing -> {
@@ -70,7 +68,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    @Override
+    @SuppressWarnings("null")
+
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }

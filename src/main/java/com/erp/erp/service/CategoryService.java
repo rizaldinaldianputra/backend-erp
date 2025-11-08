@@ -1,38 +1,36 @@
-package com.erp.erp.service.category.impl;
+package com.erp.erp.service;
 
 import com.erp.erp.model.Category;
 import com.erp.erp.repository.CategoryRepository;
-import com.erp.erp.service.category.CategoryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
-    @Override
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
 
-    @Override
+    @SuppressWarnings("null")
     public Optional<Category> getCategoryById(Long id) {
         return categoryRepository.findById(id);
     }
 
-    @Override
+    @SuppressWarnings("null")
     public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }
 
-    @Override
+    @SuppressWarnings("null")
     public Category updateCategory(Long id, Category category) {
         Category existing = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -45,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(existing);
     }
 
-    @Override
+    @SuppressWarnings("null")
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }

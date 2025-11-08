@@ -1,33 +1,31 @@
-package com.erp.erp.service.supplier.impl;
+package com.erp.erp.service;
 
 import com.erp.erp.model.Supplier;
 import com.erp.erp.repository.SupplierRepository;
-import com.erp.erp.service.supplier.SupplierService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class SupplierServiceImpl implements SupplierService {
+public class SupplierService {
 
     private final SupplierRepository supplierRepository;
 
-    public SupplierServiceImpl(SupplierRepository supplierRepository) {
+    public SupplierService(SupplierRepository supplierRepository) {
         this.supplierRepository = supplierRepository;
     }
 
-    @Override
     public List<Supplier> getAllSuppliers() {
         return supplierRepository.findAll();
     }
 
-    @Override
+    @SuppressWarnings("null")
+
     public Optional<Supplier> getSupplierById(Long id) {
         return supplierRepository.findById(id);
     }
 
-    @Override
     public Supplier createSupplier(Supplier supplier) {
         // Generate kode unik supplier
         String uniqueCode = "SUP" + System.currentTimeMillis();
@@ -36,7 +34,7 @@ public class SupplierServiceImpl implements SupplierService {
         return supplierRepository.save(supplier);
     }
 
-    @Override
+    @SuppressWarnings("null")
     public Supplier updateSupplier(Long id, Supplier supplier) {
         return supplierRepository.findById(id)
                 .map(existing -> {
@@ -52,7 +50,8 @@ public class SupplierServiceImpl implements SupplierService {
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
     }
 
-    @Override
+    @SuppressWarnings("null")
+
     public void deleteSupplier(Long id) {
         supplierRepository.deleteById(id);
     }

@@ -1,4 +1,4 @@
-package com.erp.erp.dto.supplier;
+package com.erp.erp.dto;
 
 import lombok.*;
 

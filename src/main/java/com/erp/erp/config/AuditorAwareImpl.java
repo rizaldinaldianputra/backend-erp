@@ -10,6 +10,7 @@ import java.util.Optional;
 @Component("auditorProvider")
 public class AuditorAwareImpl implements AuditorAware<String> {
 
+    @SuppressWarnings("null")
     @Override
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
