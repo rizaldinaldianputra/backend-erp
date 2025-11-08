@@ -124,22 +124,4 @@ public class WarehouseController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete warehouse by ID")
-    public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
-        try {
-            warehouseService.delete(id);
-            return ResponseEntity.ok(ApiResponseDto.<Void>builder()
-                    .status("success")
-                    .message("Warehouse deleted successfully")
-                    .data(null)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponseDto.<Void>builder()
-                    .status("error")
-                    .message("Failed to delete warehouse: " + e.getMessage())
-                    .data(null)
-                    .build());
-        }
-    }
 }

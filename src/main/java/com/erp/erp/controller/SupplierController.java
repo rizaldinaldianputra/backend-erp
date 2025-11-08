@@ -5,6 +5,8 @@ import com.erp.erp.dto.SupplierResponse;
 import com.erp.erp.model.Supplier;
 import com.erp.erp.service.SupplierService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/suppliers")
+@Tag(name = "Supplier", description = "Manage company Supplier data")
+
 public class SupplierController {
 
         private final SupplierService supplierService;
@@ -96,15 +100,4 @@ public class SupplierController {
                                                 .build());
         }
 
-        // DELETE supplier
-        @DeleteMapping("/{id}")
-        public ResponseEntity<ApiResponseDto<Void>> deleteSupplier(@PathVariable Long id) {
-                supplierService.deleteSupplier(id);
-                return ResponseEntity.ok(
-                                ApiResponseDto.<Void>builder()
-                                                .status("success")
-                                                .message("Supplier deleted successfully")
-                                                .data(null)
-                                                .build());
-        }
 }

@@ -4,6 +4,8 @@ import com.erp.erp.dto.ApiResponseDto;
 import com.erp.erp.model.Product;
 import com.erp.erp.service.ProductService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@Tag(name = "Product", description = "Manage company Product data")
+
 public class ProductController {
 
         private final ProductService productService;
@@ -75,15 +79,4 @@ public class ProductController {
                                                 .build());
         }
 
-        // DELETE product
-        @DeleteMapping("/{id}")
-        public ResponseEntity<ApiResponseDto<Void>> deleteProduct(@PathVariable Long id) {
-                productService.deleteProduct(id);
-                return ResponseEntity.ok(
-                                ApiResponseDto.<Void>builder()
-                                                .status("success")
-                                                .message("Product deleted successfully")
-                                                .data(null)
-                                                .build());
-        }
 }

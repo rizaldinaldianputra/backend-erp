@@ -5,6 +5,8 @@ import com.erp.erp.model.User;
 import com.erp.erp.security.JwtUtil;
 import com.erp.erp.service.UserService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,8 @@ import java.util.Map;
 import java.time.LocalDateTime;
 
 @RestController
+@Tag(name = "Authentication", description = "Auth")
+
 @RequestMapping("/api/auth")
 public class AuthController {
 

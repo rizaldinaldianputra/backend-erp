@@ -4,6 +4,8 @@ import com.erp.erp.dto.ApiResponseDto;
 import com.erp.erp.model.Category;
 import com.erp.erp.service.CategoryService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +13,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+@Tag(name = "Categories", description = "Product Categories")
+
 public class CategoryController {
 
         private final CategoryService categoryService;
@@ -75,15 +79,4 @@ public class CategoryController {
                                                 .build());
         }
 
-        // DELETE category
-        @DeleteMapping("/{id}")
-        public ResponseEntity<ApiResponseDto<Void>> deleteCategory(@PathVariable Long id) {
-                categoryService.deleteCategory(id);
-                return ResponseEntity.ok(
-                                ApiResponseDto.<Void>builder()
-                                                .status("success")
-                                                .message("Category deleted successfully")
-                                                .data(null)
-                                                .build());
-        }
 }

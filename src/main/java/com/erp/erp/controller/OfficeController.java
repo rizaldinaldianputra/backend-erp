@@ -83,14 +83,4 @@ public class OfficeController {
                 .build());
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete office by ID")
-    public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
-        officeService.delete(id);
-        return ResponseEntity.ok(ApiResponseDto.<Void>builder()
-                .status("success")
-                .message("Office deleted successfully")
-                .data(null)
-                .build());
-    }
 }
