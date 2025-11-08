@@ -7,6 +7,8 @@ import com.erp.erp.service.user.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.time.LocalDateTime;
 
@@ -35,38 +37,38 @@ public class AuthController {
                         .status("success")
                         .message("User registered")
                         .data(saved)
-                        .build()
-        );
+                        .build());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@RequestBody User loginRequest) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> login(@RequestBody User loginRequest) {
         return userService.findByUsername(loginRequest.getUsername())
                 .map(user -> {
                     if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                         String token = jwtUtil.generateToken(user.getUsername());
+                        Map<String, String> tokenData = new HashMap<>();
+                        tokenData.put("token", token);
+
                         return ResponseEntity.ok(
-                                ApiResponse.<String>builder()
+                                ApiResponse.<Map<String, String>>builder()
                                         .status("success")
                                         .message("Login successful")
-                                        .data(token)
-                                        .build()
-                        );
+                                        .data(tokenData)
+                                        .build());
                     } else {
                         return ResponseEntity.status(401).body(
-                                ApiResponse.<String>builder()
+                                ApiResponse.<Map<String, String>>builder()
                                         .status("error")
                                         .message("Invalid password")
                                         .data(null)
-                                        .build()
-                        );
+                                        .build());
                     }
                 }).orElse(ResponseEntity.status(404).body(
-                        ApiResponse.<String>builder()
+                        ApiResponse.<Map<String, String>>builder()
                                 .status("error")
                                 .message("User not found")
                                 .data(null)
-                                .build()
-                ));
+                                .build()));
     }
+
 }
