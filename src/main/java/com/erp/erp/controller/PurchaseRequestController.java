@@ -34,19 +34,4 @@ public class PurchaseRequestController {
         return prService.create(pr);
     }
 
-    @PostMapping("/{id}/submit")
-    public PurchaseRequest submit(@PathVariable Long id) {
-        return prService.submit(id);
-    }
-
-    @PostMapping("/{id}/approve")
-    public PurchaseRequest approve(@PathVariable Long id) {
-        return prService.approve(id);
-    }
-
-    @PostMapping("/{id}/reject")
-    public PurchaseRequest reject(@PathVariable Long id) {
-        return prService.reject(id);
-    }
-
 }

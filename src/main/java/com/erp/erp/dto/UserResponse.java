@@ -13,5 +13,7 @@ public class UserResponse {
     private String fullName;
     private String email;
     private String phone;
+    private Long supervisorId; // cuma ID
+
     private boolean active;
 }

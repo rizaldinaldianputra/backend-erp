@@ -1,111 +1,177 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
-                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
-                  id="Definitions_0sived9"
-                  targetNamespace="http://bpmn.io/schema/bpmn"
-                  exporter="Camunda Modeler"
-                  exporterVersion="4.11.1"
-                  modeler:executionPlatform="Camunda Platform"
-                  modeler:executionPlatformVersion="7.15.0">
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    id="Definitions_1"
+    targetNamespace="http://bpmn.io/schema/bpmn">
 
-  <bpmn:process id="start_requisition_process"
-                name="start_purchase_process"
-                isExecutable="true"
-                camunda:candidateStarterGroups="${WHADMIN_GROUP}"
-                camunda:versionTag="1"
-                camunda:historyTimeToLive="5">
+  <bpmn:process id="start_requisition_process" name="Requisition Process" isExecutable="true">
 
-    <bpmn:startEvent id="Event_10f69kp">
-      <bpmn:outgoing>Flow_1e2eiez</bpmn:outgoing>
+    <!-- Start Event -->
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_Create</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:userTask id="Activity_Create"
-                   name="Task Created"
-                   camunda:assignee="${CREATOR}">
+    <!-- Task Created -->
+    <bpmn:userTask id="Task_Create" name="Task Created" camunda:assignee="${CREATOR}">
+      <bpmn:incoming>Flow_Create</bpmn:incoming>
+      <bpmn:outgoing>Flow_GatewayAssign</bpmn:outgoing>
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
         <camunda:inputOutput>
           <camunda:inputParameter name="REQUISITION_STATUS">DRAFT</camunda:inputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1rpno27</bpmn:incoming>
-      <bpmn:incoming>Flow_1e2eiez</bpmn:incoming>
-      <bpmn:outgoing>Flow_0h78uxt</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:exclusiveGateway id="Gateway_15jogs8">
-      <bpmn:incoming>Flow_0h78uxt</bpmn:incoming>
-      <bpmn:outgoing>Flow_1utdtpe</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0c2a7gf</bpmn:outgoing>
+    <!-- Exclusive Gateway: Assign Needed? -->
+    <bpmn:exclusiveGateway id="Gateway_AssignNeeded">
+      <bpmn:incoming>Flow_GatewayAssign</bpmn:incoming>
+      <bpmn:outgoing>Flow_AssignTask</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ApproveTask</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:userTask id="Activity_Approve"
-                   name="Task Approval"
-                   camunda:assignee="${APPROVER}">
+    <!-- Optional Assign Task -->
+    <bpmn:userTask id="Task_Assign" name="Assign Task" camunda:assignee="${ASSIGNEE}">
+      <bpmn:incoming>Flow_AssignTask</bpmn:incoming>
+      <bpmn:outgoing>Flow_ApproveTaskAfterAssign</bpmn:outgoing>
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="REQUISITION_STATUS">ASSIGNED</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+    </bpmn:userTask>
+
+    <!-- Approval Task -->
+    <bpmn:userTask id="Task_Approve" name="Task Approval" camunda:assignee="${APPROVER}">
+      <bpmn:incoming>Flow_ApproveTask</bpmn:incoming>
+      <bpmn:incoming>Flow_ApproveTaskAfterAssign</bpmn:incoming>
+      <bpmn:outgoing>Flow_GatewayApprove</bpmn:outgoing>
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
         <camunda:inputOutput>
           <camunda:inputParameter name="REQUISITION_STATUS">ONAPPROVAL</camunda:inputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1utdtpe</bpmn:incoming>
-      <bpmn:outgoing>Flow_1ij9350</bpmn:outgoing>
     </bpmn:userTask>
 
-    <bpmn:exclusiveGateway id="Gateway_1bvg627">
-      <bpmn:incoming>Flow_1ij9350</bpmn:incoming>
-      <bpmn:outgoing>Flow_1rpno27</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0g82q6n</bpmn:outgoing>
+    <!-- Exclusive Gateway: Approval Result -->
+    <bpmn:exclusiveGateway id="Gateway_ApproveResult">
+      <bpmn:incoming>Flow_GatewayApprove</bpmn:incoming>
+      <bpmn:outgoing>Flow_EndApproved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CreateAgain</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:endEvent id="Event_End_receive" name="end">
+    <!-- End Approved -->
+    <bpmn:endEvent id="End_Approved">
+      <bpmn:incoming>Flow_EndApproved</bpmn:incoming>
       <bpmn:extensionElements>
         <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="end"/>
         <camunda:inputOutput>
           <camunda:inputParameter name="REQUISITION_STATUS">APPROVED</camunda:inputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0g82q6n</bpmn:incoming>
-    </bpmn:endEvent>
-
-    <bpmn:endEvent id="Event_0y7jpau" name="end">
-      <bpmn:extensionElements>
-        <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
-        <camunda:inputOutput>
-          <camunda:inputParameter name="REQUISITION_STATUS">REJECTED</camunda:inputParameter>
-        </camunda:inputOutput>
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0c2a7gf</bpmn:incoming>
     </bpmn:endEvent>
 
     <!-- Sequence Flows -->
-    <bpmn:sequenceFlow id="Flow_1e2eiez" sourceRef="Event_10f69kp" targetRef="Activity_Create"/>
-    <bpmn:sequenceFlow id="Flow_0h78uxt" sourceRef="Activity_Create" targetRef="Gateway_15jogs8"/>
-    <bpmn:sequenceFlow id="Flow_1utdtpe" name="approve" sourceRef="Gateway_15jogs8" targetRef="Activity_Approve">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result=="APPROVE"}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_Create" sourceRef="StartEvent_1" targetRef="Task_Create"/>
+    <bpmn:sequenceFlow id="Flow_GatewayAssign" sourceRef="Task_Create" targetRef="Gateway_AssignNeeded"/>
+    <bpmn:sequenceFlow id="Flow_AssignTask" sourceRef="Gateway_AssignNeeded" targetRef="Task_Assign">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${assignNeeded==true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0c2a7gf" name="reject" sourceRef="Gateway_15jogs8" targetRef="Event_0y7jpau">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result!="APPROVE"}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_ApproveTask" sourceRef="Gateway_AssignNeeded" targetRef="Task_Approve">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${assignNeeded!=true}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1ij9350" sourceRef="Activity_Approve" targetRef="Gateway_1bvg627"/>
-    <bpmn:sequenceFlow id="Flow_1rpno27" name="reject" sourceRef="Gateway_1bvg627" targetRef="Activity_Create">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result!="APPROVE"}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_ApproveTaskAfterAssign" sourceRef="Task_Assign" targetRef="Task_Approve"/>
+    <bpmn:sequenceFlow id="Flow_GatewayApprove" sourceRef="Task_Approve" targetRef="Gateway_ApproveResult"/>
+    <bpmn:sequenceFlow id="Flow_EndApproved" sourceRef="Gateway_ApproveResult" targetRef="End_Approved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result=='APPROVE'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0g82q6n" name="approve" sourceRef="Gateway_1bvg627" targetRef="Event_End_receive">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result=="APPROVE"}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_CreateAgain" sourceRef="Gateway_ApproveResult" targetRef="Task_Create">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result!='APPROVE'}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
 
   </bpmn:process>
 
+  <!-- BPMN Diagram -->
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="start_requisition_process">
-      <!-- Diagram shapes and edges tetap sama seperti sebelumnya -->
-      <!-- Tidak perlu diubah kecuali ingin mengubah layout visual -->
+
+      <!-- Shapes (rapi dan proporsional) -->
+      <bpmndi:BPMNShape id="Shape_Start" bpmnElement="StartEvent_1">
+        <dc:Bounds x="100" y="125" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Create" bpmnElement="Task_Create">
+        <dc:Bounds x="200" y="110" width="120" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GatewayAssign" bpmnElement="Gateway_AssignNeeded" isMarkerVisible="true">
+        <dc:Bounds x="350" y="115" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Assign" bpmnElement="Task_Assign">
+        <dc:Bounds x="450" y="50" width="120" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_Approve" bpmnElement="Task_Approve">
+        <dc:Bounds x="450" y="180" width="120" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_GatewayApprove" bpmnElement="Gateway_ApproveResult" isMarkerVisible="true">
+        <dc:Bounds x="620" y="125" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Shape_EndApproved" bpmnElement="End_Approved">
+        <dc:Bounds x="750" y="125" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Edge_Flow_Create" bpmnElement="Flow_Create">
+        <di:waypoint x="136" y="143"/>
+        <di:waypoint x="200" y="135"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_GatewayAssign" bpmnElement="Flow_GatewayAssign">
+        <di:waypoint x="320" y="135"/>
+        <di:waypoint x="350" y="140"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_AssignTask" bpmnElement="Flow_AssignTask">
+        <di:waypoint x="375" y="140"/>
+        <di:waypoint x="450" y="75"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_ApproveTask" bpmnElement="Flow_ApproveTask">
+        <di:waypoint x="375" y="140"/>
+        <di:waypoint x="500" y="205"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_ApproveTaskAfterAssign" bpmnElement="Flow_ApproveTaskAfterAssign">
+        <di:waypoint x="570" y="75"/>
+        <di:waypoint x="500" y="205"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_GatewayApprove" bpmnElement="Flow_GatewayApprove">
+        <di:waypoint x="570" y="205"/>
+        <di:waypoint x="620" y="150"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_EndApproved" bpmnElement="Flow_EndApproved">
+        <di:waypoint x="670" y="150"/>
+        <di:waypoint x="750" y="143"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_Flow_CreateAgain" bpmnElement="Flow_CreateAgain">
+        <di:waypoint x="670" y="150"/>
+        <di:waypoint x="260" y="135"/>
+      </bpmndi:BPMNEdge>
+
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 

@@ -1,38 +1,21 @@
+// src/main/java/com/erp/erp/service/WorkflowEngine.java
 package com.erp.erp.workflow.engine;
 
-import com.erp.erp.workflow.rules.Status;
-import org.springframework.stereotype.Component;
+import org.camunda.bpm.engine.RuntimeService;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Map;
 
-@Component
+@Service
 public class WorkflowEngine {
 
-    // Contoh konfigurasi sederhana: module -> currentStatus -> allowed next
-    // statuses
-    private final Map<String, Map<Status, List<Status>>> rules = new HashMap<>();
+    private final RuntimeService runtimeService;
 
-    public WorkflowEngine() {
-        Map<Status, List<Status>> prRules = new HashMap<>();
-        prRules.put(com.erp.erp.workflow.rules.PRStatus.DRAFT, Arrays.asList(
-                com.erp.erp.workflow.rules.PRStatus.ASSIGN,
-                com.erp.erp.workflow.rules.PRStatus.SUBMITTED));
-        prRules.put(com.erp.erp.workflow.rules.PRStatus.ASSIGN, Collections.singletonList(
-                com.erp.erp.workflow.rules.PRStatus.SUBMITTED));
-        prRules.put(com.erp.erp.workflow.rules.PRStatus.SUBMITTED, Arrays.asList(
-                com.erp.erp.workflow.rules.PRStatus.APPROVED,
-                com.erp.erp.workflow.rules.PRStatus.REJECTED));
-        prRules.put(com.erp.erp.workflow.rules.PRStatus.REJECTED, Collections.singletonList(
-                com.erp.erp.workflow.rules.PRStatus.DRAFT));
-        prRules.put(com.erp.erp.workflow.rules.PRStatus.APPROVED, Collections.emptyList());
-
-        rules.put("PR", prRules);
+    public WorkflowEngine(RuntimeService runtimeService) {
+        this.runtimeService = runtimeService;
     }
 
-    public boolean canTransition(String module, Status current, Status next) {
-        Map<Status, List<Status>> moduleRules = rules.get(module);
-        if (moduleRules == null)
-            return false;
-        return moduleRules.getOrDefault(current, Collections.emptyList()).contains(next);
+    public void startProcess(String processKey, Map<String, Object> variables) {
+        runtimeService.startProcessInstanceByKey(processKey, variables);
     }
 }
