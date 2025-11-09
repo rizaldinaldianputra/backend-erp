@@ -20,7 +20,10 @@ public class Category {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String code;
+    private String code; // kode internal, bisa generate otomatis
+
+    @Column(nullable = false, unique = true)
+    private String extCode; // kode eksternal bebas
 
     @Column(nullable = false)
     private String name;
@@ -37,4 +40,12 @@ public class Category {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    // Optional: generate code otomatis saat create jika belum ada
+    @PrePersist
+    protected void onCreate() {
+        if (this.code == null || this.code.isBlank()) {
+            this.code = "CAT-" + System.currentTimeMillis();
+        }
+    }
 }

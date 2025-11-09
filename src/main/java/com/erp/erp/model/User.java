@@ -30,6 +30,10 @@ public class User {
     private String updatedBy;
     private LocalDateTime updatedDate;
 
+    @ManyToOne
+    @JoinColumn(name = "supervisor_id")
+    private User supervisor; // atasan langsung
+
     @PrePersist
     protected void onCreate() {
         this.createdDate = LocalDateTime.now();

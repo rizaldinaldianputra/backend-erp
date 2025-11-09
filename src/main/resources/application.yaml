@@ -16,5 +16,4 @@ server:
 
 camunda:
   bpm:
-    database:
-      schema-update: true # auto-update schema Camunda
+    auto-deployment-enabled: true

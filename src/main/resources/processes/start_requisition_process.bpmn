@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+                  id="Definitions_0sived9"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Camunda Modeler"
+                  exporterVersion="4.11.1"
+                  modeler:executionPlatform="Camunda Platform"
+                  modeler:executionPlatformVersion="7.15.0">
+
+  <bpmn:process id="start_requisition_process"
+                name="start_purchase_process"
+                isExecutable="true"
+                camunda:candidateStarterGroups="${WHADMIN_GROUP}"
+                camunda:versionTag="1"
+                camunda:historyTimeToLive="5">
+
+    <bpmn:startEvent id="Event_10f69kp">
+      <bpmn:outgoing>Flow_1e2eiez</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Activity_Create"
+                   name="Task Created"
+                   camunda:assignee="${CREATOR}">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="REQUISITION_STATUS">DRAFT</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1rpno27</bpmn:incoming>
+      <bpmn:incoming>Flow_1e2eiez</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h78uxt</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_15jogs8">
+      <bpmn:incoming>Flow_0h78uxt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1utdtpe</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0c2a7gf</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Activity_Approve"
+                   name="Task Approval"
+                   camunda:assignee="${APPROVER}">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="REQUISITION_STATUS">ONAPPROVAL</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1utdtpe</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ij9350</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_1bvg627">
+      <bpmn:incoming>Flow_1ij9350</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rpno27</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0g82q6n</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="Event_End_receive" name="end">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="end"/>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="REQUISITION_STATUS">APPROVED</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0g82q6n</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="Event_0y7jpau" name="end">
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="${RequisitionStatusListener}" event="start"/>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="REQUISITION_STATUS">REJECTED</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0c2a7gf</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_1e2eiez" sourceRef="Event_10f69kp" targetRef="Activity_Create"/>
+    <bpmn:sequenceFlow id="Flow_0h78uxt" sourceRef="Activity_Create" targetRef="Gateway_15jogs8"/>
+    <bpmn:sequenceFlow id="Flow_1utdtpe" name="approve" sourceRef="Gateway_15jogs8" targetRef="Activity_Approve">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result=="APPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0c2a7gf" name="reject" sourceRef="Gateway_15jogs8" targetRef="Event_0y7jpau">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result!="APPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1ij9350" sourceRef="Activity_Approve" targetRef="Gateway_1bvg627"/>
+    <bpmn:sequenceFlow id="Flow_1rpno27" name="reject" sourceRef="Gateway_1bvg627" targetRef="Activity_Create">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result!="APPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0g82q6n" name="approve" sourceRef="Gateway_1bvg627" targetRef="Event_End_receive">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${result=="APPROVE"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="start_requisition_process">
+      <!-- Diagram shapes and edges tetap sama seperti sebelumnya -->
+      <!-- Tidak perlu diubah kecuali ingin mengubah layout visual -->
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

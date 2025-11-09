@@ -21,19 +21,27 @@
 
     <properties>
         <java.version>21</java.version>
+        <camunda.version>7.24.0</camunda.version>
     </properties>
+
+    <!-- Import Camunda BOM untuk konsistensi versi -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.camunda.bpm</groupId>
+                <artifactId>camunda-bom</artifactId>
+                <version>${camunda.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-<!-- Swagger / OpenAPI untuk Spring Boot -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.5.0</version>
         </dependency>
 
         <!-- Spring Data JPA -->
@@ -42,7 +50,7 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- PostgreSQL Database -->
+        <!-- PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -55,12 +63,18 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Camunda BPM Engine -->
+        <!-- Camunda Spring Boot Starter (include engine) -->
         <dependency>
-            <groupId>org.camunda.bpm</groupId>
-            <artifactId>camunda-engine</artifactId>
-            <version>7.24.0</version>
-            <scope>provided</scope>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+            <version>${camunda.version}</version>
+        </dependency>
+
+        <!-- Swagger / OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
         </dependency>
 
         <!-- Barcode / QR Code -->
@@ -91,7 +105,7 @@
             <optional>true</optional>
         </dependency>
 
-                <!-- JWT -->
+        <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -109,7 +123,6 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
-
 
         <!-- Test -->
         <dependency>

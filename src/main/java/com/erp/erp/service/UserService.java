@@ -16,6 +16,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    public User getSupervisor(User user) {
+        if (user.getSupervisor() == null) {
+            throw new RuntimeException("User " + user.getUsername() + " has no supervisor assigned");
+        }
+        return user.getSupervisor();
+    }
+
     @SuppressWarnings("null")
     public User createUser(User user) {
         return userRepository.save(user);

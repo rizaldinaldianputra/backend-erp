@@ -2,28 +2,26 @@ package com.erp.erp.service;
 
 import com.erp.erp.model.Product;
 import com.erp.erp.repository.ProductRepository;
-import com.erp.erp.util.QRCodeUtil;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final QRCodeUtil qrCodeUtil;
 
-    public ProductService(ProductRepository productRepository, QRCodeUtil qrCodeUtil) {
+    public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.qrCodeUtil = qrCodeUtil;
     }
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
-
-    @SuppressWarnings("null")
 
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
@@ -31,17 +29,19 @@ public class ProductService {
 
     public Product createProduct(Product product) {
         // Generate unique barcode
-        String uniqueBarcode = "BC" + System.currentTimeMillis();
-        product.setBarcode(uniqueBarcode);
+        product.setBarcode(generateUniqueBarcode());
 
-        // Generate QR Code Base64 dari barcode
-        String qrBase64 = qrCodeUtil.generateQRCodeBase64(uniqueBarcode, 200, 200);
-        product.setQrCode(qrBase64);
+        // Generate unique QR code value
+        product.setQrCode(generateUniqueQrCode());
+
+        // Set defaults jika belum ada
+        if (product.getActive() == null)
+            product.setActive(true);
+        if (product.getCreatedDate() == null)
+            product.setCreatedDate(LocalDateTime.now());
 
         return productRepository.save(product);
     }
-
-    @SuppressWarnings("null")
 
     public Product updateProduct(Long id, Product product) {
         return productRepository.findById(id)
@@ -49,28 +49,43 @@ public class ProductService {
                     existing.setName(product.getName());
                     existing.setUnit(product.getUnit());
                     existing.setCostPrice(product.getCostPrice());
-                    existing.setCategory(product.getCategory());
                     existing.setDescription(product.getDescription());
                     existing.setActive(product.getActive());
-                    existing.setImageUrl(product.getImageUrl());
 
                     // Jika barcode kosong atau berbeda, generate baru
                     if (product.getBarcode() == null || !product.getBarcode().equals(existing.getBarcode())) {
-                        String uniqueBarcode = "BC" + System.currentTimeMillis();
-                        existing.setBarcode(uniqueBarcode);
-
-                        String qrBase64 = qrCodeUtil.generateQRCodeBase64(uniqueBarcode, 200, 200);
-                        existing.setQrCode(qrBase64);
+                        existing.setBarcode(generateUniqueBarcode());
+                        existing.setQrCode(generateUniqueQrCode());
                     }
+
+                    existing.setUpdatedDate(LocalDateTime.now());
+                    existing.setUpdatedBy(product.getUpdatedBy());
 
                     return productRepository.save(existing);
                 })
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
-    @SuppressWarnings("null")
-
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
+    }
+
+    // ======================
+    // Helper methods
+    // ======================
+    private String generateUniqueBarcode() {
+        String barcode;
+        do {
+            barcode = "BC" + System.currentTimeMillis() + (int) (Math.random() * 1000);
+        } while (productRepository.existsByBarcode(barcode));
+        return barcode;
+    }
+
+    private String generateUniqueQrCode() {
+        String qr;
+        do {
+            qr = UUID.randomUUID().toString();
+        } while (productRepository.existsByQrCode(qr));
+        return qr;
     }
 }
