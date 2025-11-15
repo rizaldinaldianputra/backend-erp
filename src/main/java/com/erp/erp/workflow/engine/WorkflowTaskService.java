@@ -2,6 +2,7 @@ package com.erp.erp.workflow.engine;
 
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.task.Task;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,17 +23,16 @@ public class WorkflowTaskService {
         this.runtimeService = runtimeService;
     }
 
-    // 🔹 Tambahkan method ini
     public void startProcess(String processKey, Map<String, Object> vars) {
         runtimeService.startProcessInstanceByKey(processKey, vars);
     }
 
-    // 🔹 Sudah ada: list tasks for user
     public List<TaskResponseDto> listTasksForUser(String username) {
-        List<org.camunda.bpm.engine.task.Task> assigned = taskService.createTaskQuery()
+        List<Task> assigned = taskService.createTaskQuery()
                 .taskAssignee(username)
                 .list();
-        List<org.camunda.bpm.engine.task.Task> candidate = taskService.createTaskQuery()
+
+        List<Task> candidate = taskService.createTaskQuery()
                 .taskCandidateUser(username)
                 .list();
 
@@ -43,7 +43,15 @@ public class WorkflowTaskService {
                 .collect(Collectors.toList());
     }
 
-    private TaskResponseDto toDto(org.camunda.bpm.engine.task.Task t) {
+    public void assignTask(String taskId, String username) {
+        taskService.setAssignee(taskId, username);
+    }
+
+    public void completeTask(String taskId, Map<String, Object> vars) {
+        taskService.complete(taskId, vars);
+    }
+
+    private TaskResponseDto toDto(Task t) {
         Map<String, Object> vars = taskService.getVariables(t.getId());
         return TaskResponseDto.builder()
                 .taskId(t.getId())
@@ -53,15 +61,5 @@ public class WorkflowTaskService {
                 .documentNumber((String) vars.get("documentNumber"))
                 .created(String.valueOf(t.getCreateTime()))
                 .build();
-    }
-
-    // 🔹 assign task to user
-    public void assignTask(String taskId, String username) {
-        taskService.setAssignee(taskId, username);
-    }
-
-    // 🔹 complete task with variables (approve/reject)
-    public void completeTask(String taskId, Map<String, Object> vars) {
-        taskService.complete(taskId, vars);
     }
 }

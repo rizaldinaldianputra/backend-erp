@@ -3,7 +3,6 @@ package com.erp.erp.workflow.listener;
 
 import com.erp.erp.model.PurchaseRequest;
 import com.erp.erp.repository.PurchaseRequestRepository;
-import com.erp.erp.workflow.rules.PRStatus;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
@@ -29,8 +28,7 @@ public class RequisitionStatusListener implements ExecutionListener {
 
         if (newStatus != null) {
             try {
-                PRStatus st = PRStatus.valueOf(newStatus);
-                pr.setStatus(st);
+                pr.setStatus(newStatus);
                 prRepository.save(pr);
                 System.out.printf("RequisitionStatusListener: updated %s -> %s%n", documentNumber, newStatus);
             } catch (IllegalArgumentException e) {

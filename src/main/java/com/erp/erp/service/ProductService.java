@@ -70,9 +70,6 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    // ======================
-    // Helper methods
-    // ======================
     private String generateUniqueBarcode() {
         String barcode;
         do {

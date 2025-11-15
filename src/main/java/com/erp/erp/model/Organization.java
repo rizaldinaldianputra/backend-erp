@@ -2,9 +2,13 @@ package com.erp.erp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.erp.erp.security.SecurityUtil;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "organizations")
@@ -12,13 +16,14 @@ import com.erp.erp.security.SecurityUtil;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Organization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String code;
+    private String code; // generate otomatis jika kosong
     private String name;
     private String address;
     private String phone;
@@ -27,23 +32,26 @@ public class Organization {
     private String logoUrl;
     private Boolean active = true;
 
-    // Audit fields
+    // --- Audit Fields ---
+    @CreatedBy
+    @Column(updatable = false)
     private String createdBy;
+
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdDate;
+
+    @LastModifiedBy
     private String updatedBy;
+
+    @LastModifiedDate
     private LocalDateTime updatedDate;
 
+    // --- PrePersist untuk generate code otomatis ---
     @PrePersist
     protected void onCreate() {
-        this.createdDate = LocalDateTime.now();
-        if (this.createdBy == null) {
-            this.createdBy = SecurityUtil.getCurrentUsername();
+        if (this.code == null || this.code.isBlank()) {
+            this.code = "ORG-" + System.currentTimeMillis();
         }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedDate = LocalDateTime.now();
-        this.updatedBy = SecurityUtil.getCurrentUsername();
     }
 }

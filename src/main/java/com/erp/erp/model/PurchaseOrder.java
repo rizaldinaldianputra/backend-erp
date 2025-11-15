@@ -2,9 +2,7 @@ package com.erp.erp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -12,13 +10,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "purchase_requests")
+@Table(name = "purchase_orders")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class PurchaseRequest {
+public class PurchaseOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,27 +26,38 @@ public class PurchaseRequest {
     private String documentNumber;
 
     private LocalDateTime trxDate;
-    private LocalDateTime requiredDate;
     private String notes;
 
     private String status;
 
-    @CreatedBy
-    @Column(updatable = false)
-    private String createdBy;
+    // Optional: PO bisa berasal dari PR
+    @ManyToOne
+    @JoinColumn(name = "purchase_request_id")
+    private PurchaseRequest purchaseRequest;
+
+    // Optional supplier
+    @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    private Supplier supplier;
+
+    // User tracking
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id")
+    private User createdByUser;
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by_user_id")
+    private User updatedByUser;
+
+    @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PurchaseOrderItem> items;
 
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdDate;
 
-    @LastModifiedBy
-    private String updatedBy;
-
     @LastModifiedDate
     private LocalDateTime updatedDate;
-
-    @OneToMany(mappedBy = "purchaseRequest", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PurchaseRequestItem> items;
 
     @PrePersist
     protected void onCreate() {
@@ -58,6 +67,6 @@ public class PurchaseRequest {
     }
 
     public String getModule() {
-        return "PR";
+        return "PO";
     }
 }

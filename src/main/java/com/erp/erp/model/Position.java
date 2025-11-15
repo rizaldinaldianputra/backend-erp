@@ -11,31 +11,25 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "services")
+@Table(name = "positions")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EntityListeners(AuditingEntityListener.class)
-public class MasterService {
+public class Position {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String code; // kode jasa unik, misal SVC-20251108-001
+    private String code;
+    private String title;
 
-    @Column(nullable = false)
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
-    private String description;
-
-    private Double unitPrice;
-
-    private Boolean active = true;
-
-    // Audit fields otomatis
     @CreatedBy
     @Column(updatable = false)
     private String createdBy;
@@ -49,12 +43,4 @@ public class MasterService {
 
     @LastModifiedDate
     private LocalDateTime updatedDate;
-
-    // Generate code otomatis jika kosong
-    @PrePersist
-    protected void onCreate() {
-        if (this.code == null || this.code.isBlank()) {
-            this.code = "SVC-" + System.currentTimeMillis();
-        }
-    }
 }

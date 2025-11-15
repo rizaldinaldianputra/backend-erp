@@ -17,3 +17,9 @@ server:
 camunda:
   bpm:
     auto-deployment-enabled: true
+
+spring.devtools:
+  restart:
+    enabled: true # otomatis restart saat ada perubahan kode
+  livereload:
+    enabled: true # reload browser jika pakai web

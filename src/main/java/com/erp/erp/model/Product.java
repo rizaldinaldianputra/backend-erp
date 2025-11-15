@@ -2,6 +2,12 @@ package com.erp.erp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
 
     @Id
@@ -19,13 +26,13 @@ public class Product {
     private Long id;
 
     @Column(nullable = false, length = 100, unique = true)
-    private String code; // kode internal produk
+    private String code;
 
     @Column(nullable = false, length = 100, unique = true)
-    private String barcode; // value barcode string
+    private String barcode;
 
     @Column(name = "qr_code", columnDefinition = "TEXT")
-    private String qrCode; // value QR string Base64
+    private String qrCode;
 
     @Column(nullable = false, length = 200)
     private String name;
@@ -40,24 +47,32 @@ public class Product {
 
     private Boolean active;
 
-    private LocalDateTime createdDate;
+    @CreatedBy
+    @Column(updatable = false)
     private String createdBy;
-    private LocalDateTime updatedDate;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedBy
     private String updatedBy;
+
+    @LastModifiedDate
+    private LocalDateTime updatedDate;
 
     @PrePersist
     public void prePersist() {
         if (this.active == null)
             this.active = true;
-        if (this.createdDate == null)
-            this.createdDate = LocalDateTime.now();
+        if (this.code == null || this.code.isBlank())
+            this.code = "PRD-" + System.currentTimeMillis();
         if (this.barcode == null || this.barcode.isEmpty())
             this.barcode = generateBarcodeValue();
         if (this.qrCode == null || this.qrCode.isEmpty())
             this.qrCode = "DEFAULT_QR"; // bisa diganti service generate QR Base64
     }
 
-    // Generate barcode 12 digit numeric
     private String generateBarcodeValue() {
         long number = (long) (Math.random() * 1_000_000_000_000L);
         return String.format("%012d", number);

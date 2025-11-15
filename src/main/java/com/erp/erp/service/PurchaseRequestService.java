@@ -7,7 +7,6 @@ import com.erp.erp.model.User;
 import com.erp.erp.repository.PurchaseRequestRepository;
 import com.erp.erp.security.SecurityUtil;
 import com.erp.erp.workflow.engine.WorkflowTaskService;
-import com.erp.erp.workflow.rules.PRStatus;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,13 +46,18 @@ public class PurchaseRequestService {
             throw new RuntimeException("User not authenticated or not found");
         }
 
-        // Set creator ke PR
-        pr.setCreatedBy(creator);
+        // Set creator ke PR (username)
+        pr.setCreatedBy(creator.getUsername());
 
         // Generate nomor dokumen
         String docNum = "PR/" + System.currentTimeMillis();
         pr.setDocumentNumber(docNum);
-        pr.setStatus(PRStatus.DRAFT);
+        pr.setStatus("DRAFT");
+
+        // Set relation untuk PR items
+        if (pr.getItems() != null) {
+            pr.getItems().forEach(item -> item.setPurchaseRequest(pr));
+        }
 
         // Simpan PR
         PurchaseRequest saved = prRepository.save(pr);
@@ -73,11 +77,6 @@ public class PurchaseRequestService {
         workflowService.startProcess("requisition_process", vars);
 
         return saved;
-    }
-
-    private PurchaseRequest getPRById(Long id) {
-        return prRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Purchase Request not found with id " + id));
     }
 
     private PurchaseRequestResponse mapToResponse(PurchaseRequest pr) {
@@ -101,8 +100,8 @@ public class PurchaseRequestService {
                 .trxDate(pr.getTrxDate())
                 .requiredDate(pr.getRequiredDate())
                 .notes(pr.getNotes())
-                .createdBy(pr.getCreatedBy() != null ? pr.getCreatedBy().getUsername() : null)
-                .status(pr.getStatus().name())
+                .createdBy(pr.getCreatedBy() != null ? pr.getCreatedBy() : null)
+                .status(pr.getStatus())
                 .items(items)
                 .build();
     }

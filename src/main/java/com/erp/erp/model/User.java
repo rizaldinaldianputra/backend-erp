@@ -2,9 +2,13 @@ package com.erp.erp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.erp.erp.security.SecurityUtil;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -12,6 +16,7 @@ import com.erp.erp.security.SecurityUtil;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     @Id
@@ -24,29 +29,24 @@ public class User {
 
     private String role; // ADMIN, USER, MANAGER, dsb
 
-    // Audit fields
+    // --- Audit fields ---
+    @CreatedBy
+    @Column(updatable = false)
     private String createdBy;
+
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdDate;
+
+    @LastModifiedBy
     private String updatedBy;
+
+    @LastModifiedDate
     private LocalDateTime updatedDate;
 
     @ManyToOne
     @JoinColumn(name = "supervisor_id")
     private User supervisor; // atasan langsung
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdDate = LocalDateTime.now();
-        if (this.createdBy == null) {
-            this.createdBy = SecurityUtil.getCurrentUsername();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedDate = LocalDateTime.now();
-        this.updatedBy = SecurityUtil.getCurrentUsername();
-    }
 
     public String getFullName() {
         return this.username;

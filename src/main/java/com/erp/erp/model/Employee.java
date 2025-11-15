@@ -8,34 +8,53 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "services")
+@Table(name = "employees")
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EntityListeners(AuditingEntityListener.class)
-public class MasterService {
+public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String code; // kode jasa unik, misal SVC-20251108-001
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
 
-    @Column(nullable = false)
-    private String name;
+    private String employeeCode;
 
-    private String description;
+    private String firstName;
+    private String lastName;
+    private LocalDate birthDate;
+    private String birthPlace;
+    private String gender;
 
-    private Double unitPrice;
+    private String nik;
+    private String kkNumber;
 
-    private Boolean active = true;
+    private LocalDate joinDate;
 
-    // Audit fields otomatis
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    @ManyToOne
+    @JoinColumn(name = "position_id")
+    private Position position;
+
+    private String phone;
+    private String email;
+    private String address;
+
+    private String lastEducation;
+
     @CreatedBy
     @Column(updatable = false)
     private String createdBy;
@@ -50,11 +69,7 @@ public class MasterService {
     @LastModifiedDate
     private LocalDateTime updatedDate;
 
-    // Generate code otomatis jika kosong
-    @PrePersist
-    protected void onCreate() {
-        if (this.code == null || this.code.isBlank()) {
-            this.code = "SVC-" + System.currentTimeMillis();
-        }
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 }

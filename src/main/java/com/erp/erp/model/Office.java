@@ -1,17 +1,22 @@
 package com.erp.erp.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "offices")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "offices")
+@EntityListeners(AuditingEntityListener.class)
 public class Office {
 
     @Id
@@ -33,4 +38,27 @@ public class Office {
     @ManyToOne
     @JoinColumn(name = "organization_id")
     private Organization organization;
+
+    // --- Audit Fields ---
+    @CreatedBy
+    @Column(updatable = false)
+    private String createdBy;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedBy
+    private String updatedBy;
+
+    @LastModifiedDate
+    private LocalDateTime updatedDate;
+
+    // --- PrePersist untuk generate kode otomatis ---
+    @PrePersist
+    protected void onCreate() {
+        if (this.code == null || this.code.isBlank()) {
+            this.code = "OFF-" + System.currentTimeMillis();
+        }
+    }
 }
