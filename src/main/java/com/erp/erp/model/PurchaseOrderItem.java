@@ -16,6 +16,8 @@ public class PurchaseOrderItem {
     private Long id;
 
     private Integer quantity;
+    private Integer discount;
+
     private Double price;
     private Double subtotal;
 

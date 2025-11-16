@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TaskResponseDto {
+public class TaskResponse {
         private String taskId;
         private String name;
         private String assignee;

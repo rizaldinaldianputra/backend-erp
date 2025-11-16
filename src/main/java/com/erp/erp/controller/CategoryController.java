@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -23,15 +26,15 @@ public class CategoryController {
                 this.categoryService = categoryService;
         }
 
-        // GET all categories
         @GetMapping
-        public ResponseEntity<ApiResponseDto<List<Category>>> getAllCategories() {
-                List<Category> categories = categoryService.getAllCategories();
+        public ResponseEntity<ApiResponseDto<Page<Category>>> getAllCategories(
+                        @PageableDefault(size = 10) Pageable pageable) {
+                Page<Category> categoriesPage = categoryService.getAllCategories(pageable);
                 return ResponseEntity.ok(
-                                ApiResponseDto.<List<Category>>builder()
+                                ApiResponseDto.<Page<Category>>builder()
                                                 .status("success")
                                                 .message("Categories fetched successfully")
-                                                .data(categories)
+                                                .data(categoriesPage)
                                                 .build());
         }
 

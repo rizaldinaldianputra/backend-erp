@@ -95,15 +95,4 @@ public class UserController {
                                                 .build());
         }
 
-        // DELETE user
-        @DeleteMapping("/{id}")
-        public ResponseEntity<ApiResponseDto<Void>> deleteUser(@PathVariable Long id) {
-                userService.deleteUser(id);
-                return ResponseEntity.ok(
-                                ApiResponseDto.<Void>builder()
-                                                .status("success")
-                                                .message("User deleted successfully")
-                                                .data(null)
-                                                .build());
-        }
 }

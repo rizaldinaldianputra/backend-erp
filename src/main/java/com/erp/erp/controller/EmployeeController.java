@@ -6,11 +6,12 @@ import com.erp.erp.model.Employee;
 import com.erp.erp.service.EmployeeService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -46,15 +47,17 @@ public class EmployeeController {
         }
 
         @GetMapping
-        public ResponseEntity<ApiResponseDto<List<EmployeeResponse>>> getAll() {
-                List<EmployeeResponse> list = employeeService.getAllEmployees()
-                                .stream().map(this::mapToResponse).collect(Collectors.toList());
+        public ResponseEntity<ApiResponseDto<Page<EmployeeResponse>>> getAll(
+                        @PageableDefault(size = 10) Pageable pageable) {
+
+                Page<EmployeeResponse> paged = employeeService.getAllEmployees(pageable)
+                                .map(this::mapToResponse);
 
                 return ResponseEntity.ok(
-                                ApiResponseDto.<List<EmployeeResponse>>builder()
+                                ApiResponseDto.<Page<EmployeeResponse>>builder()
                                                 .status("success")
                                                 .message("Employees fetched successfully")
-                                                .data(list)
+                                                .data(paged)
                                                 .build());
         }
 

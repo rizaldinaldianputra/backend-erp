@@ -104,22 +104,4 @@ public class MasterServiceController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete service by ID")
-    public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
-        try {
-            masterServiceService.delete(id);
-            return ResponseEntity.ok(ApiResponseDto.<Void>builder()
-                    .status("success")
-                    .message("Service deleted successfully")
-                    .data(null)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponseDto.<Void>builder()
-                    .status("error")
-                    .message("Failed to delete service: " + e.getMessage())
-                    .data(null)
-                    .build());
-        }
-    }
 }

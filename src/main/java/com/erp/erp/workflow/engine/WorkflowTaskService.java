@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.erp.erp.dto.TaskResponseDto;
+import com.erp.erp.dto.TaskResponse;
 
 @Service
 public class WorkflowTaskService {
@@ -27,7 +27,7 @@ public class WorkflowTaskService {
         runtimeService.startProcessInstanceByKey(processKey, vars);
     }
 
-    public List<TaskResponseDto> listTasksForUser(String username) {
+    public List<TaskResponse> listTasksForUser(String username) {
         List<Task> assigned = taskService.createTaskQuery()
                 .taskAssignee(username)
                 .list();
@@ -51,9 +51,9 @@ public class WorkflowTaskService {
         taskService.complete(taskId, vars);
     }
 
-    private TaskResponseDto toDto(Task t) {
+    private TaskResponse toDto(Task t) {
         Map<String, Object> vars = taskService.getVariables(t.getId());
-        return TaskResponseDto.builder()
+        return TaskResponse.builder()
                 .taskId(t.getId())
                 .name(t.getName())
                 .assignee(t.getAssignee())

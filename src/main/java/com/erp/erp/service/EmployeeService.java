@@ -2,9 +2,10 @@ package com.erp.erp.service;
 
 import com.erp.erp.model.Employee;
 import com.erp.erp.repository.EmployeeRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,18 +17,15 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    @SuppressWarnings("null")
     public Employee createEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
 
-    @SuppressWarnings("null")
     public Employee updateEmployee(Long id, Employee employee) {
         return employeeRepository.findById(id)
                 .map(existing -> {
                     existing.setFirstName(employee.getFirstName());
                     existing.setLastName(employee.getLastName());
-
                     existing.setEmail(employee.getEmail());
                     existing.setDepartment(employee.getDepartment());
                     existing.setPosition(employee.getPosition());
@@ -38,7 +36,6 @@ public class EmployeeService {
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
     }
 
-    @SuppressWarnings("null")
     public void deleteEmployee(Long id) {
         employeeRepository.deleteById(id);
     }
@@ -47,15 +44,9 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    // Versi pagination
+    public Page<Employee> getAllEmployees(Pageable pageable) {
+        return employeeRepository.findAll(pageable);
     }
 
-    public List<Employee> getEmployeesByDepartment(Long departmentId) {
-        return employeeRepository.findByDepartmentId(departmentId);
-    }
-
-    public List<Employee> getEmployeesByPosition(Long positionId) {
-        return employeeRepository.findByPositionId(positionId);
-    }
 }

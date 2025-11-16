@@ -1,10 +1,12 @@
 package com.erp.erp.service;
 
+import com.erp.erp.dto.ProductResponse;
 import com.erp.erp.model.Product;
+import com.erp.erp.model.Uom;
 import com.erp.erp.repository.ProductRepository;
+import com.erp.erp.repository.UomRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +16,11 @@ import java.util.UUID;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final UomRepository uomRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, UomRepository uomRepository) {
         this.productRepository = productRepository;
+        this.uomRepository = uomRepository;
     }
 
     public List<Product> getAllProducts() {
@@ -28,15 +32,22 @@ public class ProductService {
     }
 
     public Product createProduct(Product product) {
-        // Generate unique barcode
-        product.setBarcode(generateUniqueBarcode());
 
-        // Generate unique QR code value
+        // Validasi UOM
+        if (product.getUom() != null && product.getUom().getId() != null) {
+            Uom uom = uomRepository.findById(product.getUom().getId())
+                    .orElseThrow(() -> new RuntimeException("UOM not found"));
+            product.setUom(uom);
+        }
+
+        // Generate barcode & QR unik
+        product.setBarcode(generateUniqueBarcode());
         product.setQrCode(generateUniqueQrCode());
 
-        // Set defaults jika belum ada
+        // Default active
         if (product.getActive() == null)
             product.setActive(true);
+
         if (product.getCreatedDate() == null)
             product.setCreatedDate(LocalDateTime.now());
 
@@ -46,14 +57,22 @@ public class ProductService {
     public Product updateProduct(Long id, Product product) {
         return productRepository.findById(id)
                 .map(existing -> {
+
                     existing.setName(product.getName());
-                    existing.setUnit(product.getUnit());
-                    existing.setCostPrice(product.getCostPrice());
                     existing.setDescription(product.getDescription());
+                    existing.setCostPrice(product.getCostPrice());
                     existing.setActive(product.getActive());
 
-                    // Jika barcode kosong atau berbeda, generate baru
-                    if (product.getBarcode() == null || !product.getBarcode().equals(existing.getBarcode())) {
+                    // UOM update
+                    if (product.getUom() != null && product.getUom().getId() != null) {
+                        Uom uom = uomRepository.findById(product.getUom().getId())
+                                .orElseThrow(() -> new RuntimeException("UOM not found"));
+                        existing.setUom(uom);
+                    }
+
+                    // Barcode/QR baru bila user sengaja ubah barcode
+                    if (product.getBarcode() == null ||
+                            !product.getBarcode().equals(existing.getBarcode())) {
                         existing.setBarcode(generateUniqueBarcode());
                         existing.setQrCode(generateUniqueQrCode());
                     }
@@ -64,10 +83,6 @@ public class ProductService {
                     return productRepository.save(existing);
                 })
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-    }
-
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
     }
 
     private String generateUniqueBarcode() {
@@ -85,4 +100,16 @@ public class ProductService {
         } while (productRepository.existsByQrCode(qr));
         return qr;
     }
+
+    public ProductResponse toResponse(Product product) {
+        if (product == null)
+            return null;
+
+        return ProductResponse.builder()
+                .id(product.getId())
+                .code(product.getCode())
+                .name(product.getName())
+                .build();
+    }
+
 }

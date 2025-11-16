@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ApproveRequestDto {
+public class ApproveRequest {
         private String taskId;
         private String module; // "PR"
         private String result; // "APPROVE" or "REJECT"

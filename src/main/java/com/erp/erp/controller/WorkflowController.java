@@ -1,9 +1,12 @@
 package com.erp.erp.controller;
 
-import com.erp.erp.dto.TaskResponseDto;
+import com.erp.erp.dto.TaskResponse;
 import com.erp.erp.model.User;
 import com.erp.erp.security.SecurityUtil;
 import com.erp.erp.workflow.engine.WorkflowTaskService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +16,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/workflow")
+@Tag(name = "Workflow Camunda", description = "Manage company Product data")
+
 public class WorkflowController {
 
     private final WorkflowTaskService workflowTaskService;
@@ -23,12 +28,12 @@ public class WorkflowController {
 
     // 🔹 List semua task untuk user login
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskResponseDto>> getTasks() {
+    public ResponseEntity<List<TaskResponse>> getTasks() {
         User currentUser = SecurityUtil.getCurrentUser();
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<TaskResponseDto> tasks = workflowTaskService.listTasksForUser(currentUser.getUsername());
+        List<TaskResponse> tasks = workflowTaskService.listTasksForUser(currentUser.getUsername());
         return ResponseEntity.ok(tasks);
     }
 

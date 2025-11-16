@@ -3,8 +3,8 @@ package com.erp.erp.service;
 import com.erp.erp.model.Department;
 import com.erp.erp.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 @Service
@@ -41,7 +41,7 @@ public class DepartmentService {
         return departmentRepository.findById(id);
     }
 
-    public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+    public Page<Department> getAllDepartments(Pageable pageable) {
+        return departmentRepository.findAll(pageable);
     }
 }

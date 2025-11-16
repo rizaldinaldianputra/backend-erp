@@ -9,9 +9,11 @@ public class ProductResponse {
     private Long id;
     private String code;
     private String name;
-    private String unit;
+
+    private UomResponse uom; // object UOM
+    private CategoryResponse category; // object Category
+
     private Double costPrice;
-    private String categoryName; // hanya nama category
     private String description;
     private Boolean active;
     private String barcode;

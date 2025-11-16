@@ -1,11 +1,13 @@
 package com.erp.erp.service;
 
-import com.erp.erp.model.Category;
-import com.erp.erp.repository.CategoryRepository;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.erp.erp.model.Category;
+import com.erp.erp.repository.CategoryRepository;
 
 @Service
 public class CategoryService {
@@ -16,21 +18,19 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    // GET all categories dengan pagination
+    public Page<Category> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
-    @SuppressWarnings("null")
     public Optional<Category> getCategoryById(Long id) {
         return categoryRepository.findById(id);
     }
 
-    @SuppressWarnings("null")
     public Category createCategory(Category category) {
         return categoryRepository.save(category);
     }
 
-    @SuppressWarnings("null")
     public Category updateCategory(Long id, Category category) {
         Category existing = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -43,7 +43,6 @@ public class CategoryService {
         return categoryRepository.save(existing);
     }
 
-    @SuppressWarnings("null")
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }

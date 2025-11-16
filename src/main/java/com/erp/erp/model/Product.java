@@ -40,8 +40,10 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 50)
-    private String unit;
+    // 🔥 UBAH STRING unit → RELASI MANY TO ONE
+    @ManyToOne
+    @JoinColumn(name = "uom_id")
+    private Uom uom;
 
     private BigDecimal costPrice;
 
@@ -70,7 +72,7 @@ public class Product {
         if (this.barcode == null || this.barcode.isEmpty())
             this.barcode = generateBarcodeValue();
         if (this.qrCode == null || this.qrCode.isEmpty())
-            this.qrCode = "DEFAULT_QR"; // bisa diganti service generate QR Base64
+            this.qrCode = "DEFAULT_QR";
     }
 
     private String generateBarcodeValue() {

@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AssignRequestDto {
+public class AssignRequest {
         private String taskId;
         private String module; // "PR"
         private String assigneeUsername;
