@@ -2,6 +2,7 @@ package com.erp.erp.service;
 
 import com.erp.erp.model.Department;
 import com.erp.erp.repository.DepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +17,12 @@ public class DepartmentService {
         this.departmentRepository = departmentRepository;
     }
 
+    @Autowired
+    private CodeGeneratorService codeGenerator;
+
     @SuppressWarnings("null")
     public Department createDepartment(Department department) {
+        department.setCode(codeGenerator.generateSimpleCode("DEPT", departmentRepository.count() + 1));
         return departmentRepository.save(department);
     }
 

@@ -6,10 +6,11 @@ import com.erp.erp.model.Organization;
 import com.erp.erp.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/organizations")
@@ -24,18 +25,21 @@ public class OrganizationController {
 
         @GetMapping
         @Operation(summary = "Get all organizations")
-        public ResponseEntity<ApiResponseDto<List<OrganizationResponse>>> getAll() {
+        public ResponseEntity<ApiResponseDto<Page<OrganizationResponse>>> getAll(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
                 try {
-                        List<OrganizationResponse> organizations = organizationService.findAll();
+                        Pageable pageable = PageRequest.of(page, size);
+                        Page<OrganizationResponse> organizations = organizationService.findAll(pageable);
                         return ResponseEntity.ok(
-                                        ApiResponseDto.<List<OrganizationResponse>>builder()
+                                        ApiResponseDto.<Page<OrganizationResponse>>builder()
                                                         .status("success")
                                                         .message("Organizations fetched successfully")
                                                         .data(organizations)
                                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(500).body(
-                                        ApiResponseDto.<List<OrganizationResponse>>builder()
+                                        ApiResponseDto.<Page<OrganizationResponse>>builder()
                                                         .status("error")
                                                         .message("Failed to fetch organizations: " + e.getMessage())
                                                         .data(null)

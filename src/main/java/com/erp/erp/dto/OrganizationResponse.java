@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class OrganizationResponse {
     private Long id;
+    private String code;
     private String name;
     private String address;
     private String phone;

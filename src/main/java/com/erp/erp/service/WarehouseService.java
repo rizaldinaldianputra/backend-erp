@@ -5,6 +5,9 @@ import com.erp.erp.model.Organization;
 import com.erp.erp.model.Warehouse;
 import com.erp.erp.repository.OrganizationRepository;
 import com.erp.erp.repository.WarehouseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,12 +25,10 @@ public class WarehouseService {
         this.organizationRepository = organizationRepository;
     }
 
-    // GET all warehouses
-    public List<WarehouseResponse> findAll() {
-        return warehouseRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    // GET all warehouses with pagination
+    public Page<WarehouseResponse> findAll(Pageable pageable) {
+        return warehouseRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     // GET warehouse by ID
@@ -36,6 +37,9 @@ public class WarehouseService {
                 .map(this::mapToResponse);
     }
 
+    @Autowired
+    private CodeGeneratorService codeGenerator;
+
     // CREATE new warehouse
     public WarehouseResponse create(Warehouse warehouse) {
         if (warehouse.getOrganization() == null || warehouse.getOrganization().getId() == null) {
@@ -43,8 +47,8 @@ public class WarehouseService {
         }
         Organization org = organizationRepository.findById(warehouse.getOrganization().getId())
                 .orElseThrow(() -> new RuntimeException("Organization not found"));
-
         warehouse.setOrganization(org);
+        warehouse.setCode(codeGenerator.generateSimpleCode("WH", warehouseRepository.count() + 1));
         Warehouse saved = warehouseRepository.save(warehouse);
         return mapToResponse(saved);
     }

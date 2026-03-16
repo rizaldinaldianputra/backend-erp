@@ -17,7 +17,12 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private CodeGeneratorService codeGenerator;
+
     public Employee createEmployee(Employee employee) {
+        long count = employeeRepository.count() + 1;
+        employee.setEmployeeCode(codeGenerator.generateSimpleCode("EMP", count));
         return employeeRepository.save(employee);
     }
 

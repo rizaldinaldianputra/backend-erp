@@ -10,6 +10,10 @@ public class PublicEndpoint {
             // Auth endpoints
             "/api/auth/login",
             "/api/auth/register",
+            "/api/auth/forgot-password",
+            "/api/auth/verify-otp",
+            "/api/auth/reset-password",
+            "/api/auth/resend-otp",
 
             // Swagger UI
             "/swagger-ui/**",

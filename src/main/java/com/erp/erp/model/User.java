@@ -24,10 +24,24 @@ public class User {
     private Long id;
 
     private String username;
+    private String fullName;
     private String password;
     private String email;
 
     private String role; // ADMIN, USER, MANAGER, dsb
+
+    private String avatarUrl;
+
+    // --- Forgot Password OTP ---
+    @Column(name = "reset_password_otp")
+    private String resetPasswordOtp;
+
+    @Column(name = "reset_password_otp_expiry")
+    private LocalDateTime resetPasswordOtpExpiry;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
     // --- Audit fields ---
     @CreatedBy
@@ -49,6 +63,6 @@ public class User {
     private User supervisor; // atasan langsung
 
     public String getFullName() {
-        return this.username;
+        return this.fullName != null ? this.fullName : this.username;
     }
 }

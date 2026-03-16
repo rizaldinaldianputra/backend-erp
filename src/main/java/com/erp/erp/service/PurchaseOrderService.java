@@ -5,6 +5,7 @@ import com.erp.erp.repository.PurchaseOrderRepository;
 import com.erp.erp.repository.PurchaseRequestRepository;
 import com.erp.erp.repository.SupplierRepository;
 import com.erp.erp.repository.UserRepository;
+import com.erp.erp.util.CodeGeneratorUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,16 +19,19 @@ public class PurchaseOrderService {
     private final PurchaseRequestRepository prRepository;
     private final SupplierRepository supplierRepository;
     private final UserRepository userRepository;
+    private final CodeGeneratorUtil codeGeneratorUtil;
 
     public PurchaseOrderService(
             PurchaseOrderRepository poRepository,
             PurchaseRequestRepository prRepository,
             SupplierRepository supplierRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            CodeGeneratorUtil codeGeneratorUtil) {
         this.poRepository = poRepository;
         this.prRepository = prRepository;
         this.supplierRepository = supplierRepository;
         this.userRepository = userRepository;
+        this.codeGeneratorUtil = codeGeneratorUtil;
     }
 
     public List<PurchaseOrder> getAll() {
@@ -40,9 +44,19 @@ public class PurchaseOrderService {
 
     public PurchaseOrder create(PurchaseOrder po) {
 
-        // Generate nomor dokumen PO/173343...
+        // Generate nomor dokumen PO-YYYYMMDD-USERID-ORGID-TIMESTAMP
         if (po.getDocumentNumber() == null || po.getDocumentNumber().isEmpty()) {
-            po.setDocumentNumber("PO/" + System.currentTimeMillis());
+            String generatedCode;
+            int attempts = 0;
+            do {
+                generatedCode = codeGeneratorUtil.generateCode("PO");
+                attempts++;
+                // Safety check to prevent infinite loop
+                if (attempts > 10) {
+                    throw new RuntimeException("Failed to generate unique document number after 10 attempts");
+                }
+            } while (poRepository.existsByDocumentNumber(generatedCode));
+            po.setDocumentNumber(generatedCode);
         }
 
         // Set tanggal transaksi jika tidak ada

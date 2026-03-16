@@ -2,9 +2,10 @@ package com.erp.erp.service;
 
 import com.erp.erp.model.Supplier;
 import com.erp.erp.repository.SupplierRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,8 +17,8 @@ public class SupplierService {
         this.supplierRepository = supplierRepository;
     }
 
-    public List<Supplier> getAllSuppliers() {
-        return supplierRepository.findAll();
+    public Page<Supplier> getAllSuppliers(Pageable pageable) {
+        return supplierRepository.findAll(pageable);
     }
 
     @SuppressWarnings("null")
@@ -26,11 +27,12 @@ public class SupplierService {
         return supplierRepository.findById(id);
     }
 
-    public Supplier createSupplier(Supplier supplier) {
-        // Generate kode unik supplier
-        String uniqueCode = "SUP" + System.currentTimeMillis();
-        supplier.setCode(uniqueCode);
+    @org.springframework.beans.factory.annotation.Autowired
+    private CodeGeneratorService codeGenerator;
 
+    public Supplier createSupplier(Supplier supplier) {
+        long count = supplierRepository.count() + 1;
+        supplier.setCode(codeGenerator.generateSimpleCode("SUP", count));
         return supplierRepository.save(supplier);
     }
 

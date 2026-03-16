@@ -40,10 +40,17 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    // Category relation
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     // 🔥 UBAH STRING unit → RELASI MANY TO ONE
     @ManyToOne
     @JoinColumn(name = "uom_id")
     private Uom uom;
+
+    private String imageUrl;
 
     private BigDecimal costPrice;
 

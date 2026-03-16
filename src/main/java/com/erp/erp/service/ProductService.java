@@ -5,10 +5,11 @@ import com.erp.erp.model.Product;
 import com.erp.erp.model.Uom;
 import com.erp.erp.repository.ProductRepository;
 import com.erp.erp.repository.UomRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,13 +24,16 @@ public class ProductService {
         this.uomRepository = uomRepository;
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<Product> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private CodeGeneratorService codeGenerator;
 
     public Product createProduct(Product product) {
 
@@ -39,6 +43,10 @@ public class ProductService {
                     .orElseThrow(() -> new RuntimeException("UOM not found"));
             product.setUom(uom);
         }
+
+        // Auto-generate product code
+        long count = productRepository.count() + 1;
+        product.setCode(codeGenerator.generateSimpleCode("PRD", count));
 
         // Generate barcode & QR unik
         product.setBarcode(generateUniqueBarcode());
@@ -110,6 +118,13 @@ public class ProductService {
                 .code(product.getCode())
                 .name(product.getName())
                 .build();
+    }
+
+    public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new RuntimeException("Product not found with id: " + id);
+        }
+        productRepository.deleteById(id);
     }
 
 }

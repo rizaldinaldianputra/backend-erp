@@ -2,6 +2,7 @@ package com.erp.erp.service;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,11 @@ public class CategoryService {
         return categoryRepository.findById(id);
     }
 
+    @Autowired
+    private CodeGeneratorService codeGenerator;
+
     public Category createCategory(Category category) {
+        category.setCode(codeGenerator.generateSimpleCode("CAT", categoryRepository.count() + 1));
         return categoryRepository.save(category);
     }
 

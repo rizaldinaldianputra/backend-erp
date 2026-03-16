@@ -69,4 +69,13 @@ public class PurchaseOrder {
     public String getModule() {
         return "PO";
     }
+
+    public java.math.BigDecimal getTotalAmount() {
+        if (items == null)
+            return java.math.BigDecimal.ZERO;
+        return items.stream()
+                .map(item -> java.math.BigDecimal.valueOf(item.getPrice())
+                        .multiply(java.math.BigDecimal.valueOf(item.getQuantity())))
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+    }
 }

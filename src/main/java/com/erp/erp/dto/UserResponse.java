@@ -15,5 +15,11 @@ public class UserResponse {
     private String phone;
     private Long supervisorId; // cuma ID
 
+    private String avatarUrl;
+    private String role;
+
+    private Long organizationId;
+    private String organizationName;
+
     private boolean active;
 }

@@ -5,6 +5,8 @@ import com.erp.erp.model.Office;
 import com.erp.erp.model.Organization;
 import com.erp.erp.repository.OfficeRepository;
 import com.erp.erp.repository.OrganizationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,12 +24,10 @@ public class OfficeService {
         this.organizationRepository = organizationRepository;
     }
 
-    // GET all offices
-    public List<OfficeResponse> findAllWithOrganization() {
-        return officeRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    // GET all offices with pagination
+    public Page<OfficeResponse> findAllWithOrganization(Pageable pageable) {
+        return officeRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     // GET office by ID

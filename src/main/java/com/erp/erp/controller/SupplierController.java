@@ -7,11 +7,11 @@ import com.erp.erp.service.SupplierService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/suppliers")
@@ -40,16 +40,17 @@ public class SupplierController {
                                 .build();
         }
 
-        // GET all suppliers
+        // GET all suppliers with pagination
         @GetMapping
-        public ResponseEntity<ApiResponseDto<List<SupplierResponse>>> getAllSuppliers() {
-                List<SupplierResponse> suppliers = supplierService.getAllSuppliers()
-                                .stream()
-                                .map(this::mapToResponse)
-                                .collect(Collectors.toList());
+        public ResponseEntity<ApiResponseDto<Page<SupplierResponse>>> getAllSuppliers(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<SupplierResponse> suppliers = supplierService.getAllSuppliers(pageable)
+                                .map(this::mapToResponse);
 
                 return ResponseEntity.ok(
-                                ApiResponseDto.<List<SupplierResponse>>builder()
+                                ApiResponseDto.<Page<SupplierResponse>>builder()
                                                 .status("success")
                                                 .message("Suppliers fetched successfully")
                                                 .data(suppliers)

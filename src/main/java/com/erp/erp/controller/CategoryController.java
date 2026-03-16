@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -80,6 +79,27 @@ public class CategoryController {
                                                 .message("Category updated successfully")
                                                 .data(updated)
                                                 .build());
+        }
+
+        // DELETE category by ID
+        @DeleteMapping("/{id}")
+        public ResponseEntity<ApiResponseDto<Void>> deleteCategory(@PathVariable Long id) {
+                try {
+                        categoryService.deleteCategory(id);
+                        return ResponseEntity.ok(
+                                        ApiResponseDto.<Void>builder()
+                                                        .status("success")
+                                                        .message("Category deleted successfully")
+                                                        .data(null)
+                                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(500).body(
+                                        ApiResponseDto.<Void>builder()
+                                                        .status("error")
+                                                        .message("Failed to delete category: " + e.getMessage())
+                                                        .data(null)
+                                                        .build());
+                }
         }
 
 }

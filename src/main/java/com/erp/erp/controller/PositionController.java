@@ -3,15 +3,13 @@ package com.erp.erp.controller;
 import com.erp.erp.dto.ApiResponseDto;
 import com.erp.erp.dto.PositionResponse;
 import com.erp.erp.model.Position;
-import com.erp.erp.service.CategoryService;
 import com.erp.erp.service.PositionService;
-
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/positions")
@@ -34,15 +32,18 @@ public class PositionController {
         }
 
         @GetMapping
-        public ResponseEntity<ApiResponseDto<List<PositionResponse>>> getAll() {
-                List<PositionResponse> list = positionService.getAllPositions()
-                                .stream().map(this::mapToResponse).collect(Collectors.toList());
+        public ResponseEntity<ApiResponseDto<Page<PositionResponse>>> getAll(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<PositionResponse> paged = positionService.getAllPositions(pageable)
+                                .map(this::mapToResponse);
 
                 return ResponseEntity.ok(
-                                ApiResponseDto.<List<PositionResponse>>builder()
+                                ApiResponseDto.<Page<PositionResponse>>builder()
                                                 .status("success")
                                                 .message("Positions fetched successfully")
-                                                .data(list)
+                                                .data(paged)
                                                 .build());
         }
 

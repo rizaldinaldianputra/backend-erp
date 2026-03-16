@@ -6,6 +6,9 @@ import com.erp.erp.model.Warehouse;
 import com.erp.erp.service.WarehouseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,16 +27,19 @@ public class WarehouseController {
 
     @GetMapping
     @Operation(summary = "Get all warehouses")
-    public ResponseEntity<ApiResponseDto<List<WarehouseResponse>>> getAll() {
+    public ResponseEntity<ApiResponseDto<Page<WarehouseResponse>>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<WarehouseResponse> warehouses = warehouseService.findAll();
-            return ResponseEntity.ok(ApiResponseDto.<List<WarehouseResponse>>builder()
+            Pageable pageable = PageRequest.of(page, size);
+            Page<WarehouseResponse> warehouses = warehouseService.findAll(pageable);
+            return ResponseEntity.ok(ApiResponseDto.<Page<WarehouseResponse>>builder()
                     .status("success")
                     .message("Warehouses fetched successfully")
                     .data(warehouses)
                     .build());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(ApiResponseDto.<List<WarehouseResponse>>builder()
+            return ResponseEntity.status(500).body(ApiResponseDto.<Page<WarehouseResponse>>builder()
                     .status("error")
                     .message("Failed to fetch warehouses: " + e.getMessage())
                     .data(null)
@@ -119,6 +125,25 @@ public class WarehouseController {
             return ResponseEntity.status(500).body(ApiResponseDto.<WarehouseResponse>builder()
                     .status("error")
                     .message("Failed to update warehouse: " + e.getMessage())
+                    .data(null)
+                    .build());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete warehouse by ID")
+    public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
+        try {
+            warehouseService.delete(id);
+            return ResponseEntity.ok(ApiResponseDto.<Void>builder()
+                    .status("success")
+                    .message("Warehouse deleted successfully")
+                    .data(null)
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponseDto.<Void>builder()
+                    .status("error")
+                    .message("Failed to delete warehouse: " + e.getMessage())
                     .data(null)
                     .build());
         }

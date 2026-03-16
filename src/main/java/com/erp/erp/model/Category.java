@@ -26,8 +26,8 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String code; // kode internal, generate otomatis
 
-    @Column(nullable = false, unique = true)
-    private String extCode; // kode eksternal bebas
+    @Column(unique = true)
+    private String extCode; // kode eksternal bebas (opsional)
 
     @Column(nullable = false)
     private String name;
@@ -57,6 +57,10 @@ public class Category {
     protected void onCreate() {
         if (this.code == null || this.code.isBlank()) {
             this.code = "CAT-" + System.currentTimeMillis();
+        }
+        // extCode juga di-generate otomatis jika tidak diisi
+        if (this.extCode == null || this.extCode.isBlank()) {
+            this.extCode = "EXT-CAT-" + System.currentTimeMillis();
         }
     }
 }

@@ -2,6 +2,7 @@ package com.erp.erp.service;
 
 import com.erp.erp.model.Uom;
 import com.erp.erp.repository.UomRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,11 @@ public class UomService {
         return uomRepository.findById(id);
     }
 
+    @Autowired
+    private CodeGeneratorService codeGenerator;
+
     public Uom create(Uom uom) {
+        uom.setCode(codeGenerator.generateSimpleCode("UOM", uomRepository.count() + 1));
         return uomRepository.save(uom);
     }
 

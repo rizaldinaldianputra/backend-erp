@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/uom")
+@RequestMapping("/api/uoms")
 @Tag(name = "UOM", description = "Manage UOM (Unit of Measurement)")
 public class UomController {
 
@@ -87,6 +87,26 @@ public class UomController {
                                                 .message("UOM updated successfully")
                                                 .data(mapToResponse(updated))
                                                 .build());
+        }
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable Long id) {
+                try {
+                        uomService.delete(id);
+                        return ResponseEntity.ok(
+                                        ApiResponseDto.<Void>builder()
+                                                        .status("success")
+                                                        .message("UOM deleted successfully")
+                                                        .data(null)
+                                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(500).body(
+                                        ApiResponseDto.<Void>builder()
+                                                        .status("error")
+                                                        .message("Failed to delete UOM: " + e.getMessage())
+                                                        .data(null)
+                                                        .build());
+                }
         }
 
 }

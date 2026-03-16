@@ -2,9 +2,11 @@ package com.erp.erp.service;
 
 import com.erp.erp.model.Position;
 import com.erp.erp.repository.PositionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,8 +18,12 @@ public class PositionService {
         this.positionRepository = positionRepository;
     }
 
+    @Autowired
+    private CodeGeneratorService codeGenerator;
+
     @SuppressWarnings("null")
     public Position createPosition(Position position) {
+        position.setCode(codeGenerator.generateSimpleCode("POS", positionRepository.count() + 1));
         return positionRepository.save(position);
     }
 
@@ -42,7 +48,7 @@ public class PositionService {
         return positionRepository.findById(id);
     }
 
-    public List<Position> getAllPositions() {
-        return positionRepository.findAll();
+    public Page<Position> getAllPositions(Pageable pageable) {
+        return positionRepository.findAll(pageable);
     }
 }

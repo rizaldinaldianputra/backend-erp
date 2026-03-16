@@ -3,11 +3,11 @@ package com.erp.erp.service;
 import com.erp.erp.dto.OrganizationResponse;
 import com.erp.erp.model.Organization;
 import com.erp.erp.repository.OrganizationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class OrganizationService {
@@ -18,12 +18,10 @@ public class OrganizationService {
         this.organizationRepository = organizationRepository;
     }
 
-    // GET all organizations
-    public List<OrganizationResponse> findAll() {
-        return organizationRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    // GET all organizations with pagination
+    public Page<OrganizationResponse> findAll(Pageable pageable) {
+        return organizationRepository.findAll(pageable)
+                .map(this::toResponse);
     }
 
     // GET organization by ID
@@ -69,6 +67,7 @@ public class OrganizationService {
     private OrganizationResponse toResponse(Organization org) {
         return OrganizationResponse.builder()
                 .id(org.getId())
+                .code(org.getCode())
                 .name(org.getName())
                 .address(org.getAddress())
                 .phone(org.getPhone())

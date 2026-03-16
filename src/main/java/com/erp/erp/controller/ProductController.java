@@ -6,10 +6,11 @@ import com.erp.erp.service.ProductService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -23,12 +24,16 @@ public class ProductController {
                 this.productService = productService;
         }
 
-        // GET all products
+        // GET all products with pagination
         @GetMapping
-        public ResponseEntity<ApiResponseDto<List<Product>>> getAllProducts() {
-                List<Product> products = productService.getAllProducts();
+        @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'SUPERADMIN', 'MANAGER', 'SALES', 'PURCHASING', 'WAREHOUSE', 'STAFF')")
+        public ResponseEntity<ApiResponseDto<Page<Product>>> getAllProducts(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<Product> products = productService.getAllProducts(pageable);
                 return ResponseEntity.ok(
-                                ApiResponseDto.<List<Product>>builder()
+                                ApiResponseDto.<Page<Product>>builder()
                                                 .status("success")
                                                 .message("Products fetched successfully")
                                                 .data(products)
@@ -55,6 +60,7 @@ public class ProductController {
 
         // POST create new product
         @PostMapping
+        @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'SUPERADMIN', 'MANAGER', 'PURCHASING', 'STAFF')")
         public ResponseEntity<ApiResponseDto<Product>> createProduct(@RequestBody Product product) {
                 Product saved = productService.createProduct(product);
                 return ResponseEntity.ok(
@@ -67,6 +73,7 @@ public class ProductController {
 
         // PUT update product
         @PutMapping("/{id}")
+        @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'SUPERADMIN', 'MANAGER', 'PURCHASING', 'STAFF')")
         public ResponseEntity<ApiResponseDto<Product>> updateProduct(
                         @PathVariable Long id,
                         @RequestBody Product product) {
@@ -77,6 +84,29 @@ public class ProductController {
                                                 .message("Product updated successfully")
                                                 .data(updated)
                                                 .build());
+        }
+
+        // DELETE product by ID
+        @DeleteMapping("/{id}")
+        @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'SUPERADMIN', 'MANAGER', 'PURCHASING')")
+
+        public ResponseEntity<ApiResponseDto<Void>> deleteProduct(@PathVariable Long id) {
+                try {
+                        productService.deleteProduct(id);
+                        return ResponseEntity.ok(
+                                        ApiResponseDto.<Void>builder()
+                                                        .status("success")
+                                                        .message("Product deleted successfully")
+                                                        .data(null)
+                                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(500).body(
+                                        ApiResponseDto.<Void>builder()
+                                                        .status("error")
+                                                        .message("Failed to delete product: " + e.getMessage())
+                                                        .data(null)
+                                                        .build());
+                }
         }
 
 }

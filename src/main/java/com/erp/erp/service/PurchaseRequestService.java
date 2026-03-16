@@ -8,6 +8,8 @@ import com.erp.erp.repository.PurchaseRequestRepository;
 import com.erp.erp.security.SecurityUtil;
 import com.erp.erp.workflow.engine.WorkflowTaskService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,11 @@ public class PurchaseRequestService {
     public PurchaseRequestService(PurchaseRequestRepository prRepository, WorkflowTaskService workflowService) {
         this.prRepository = prRepository;
         this.workflowService = workflowService;
+    }
+
+    public Page<PurchaseRequestResponse> findAll(Pageable pageable) {
+        return prRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     public List<PurchaseRequestResponse> findAll() {
@@ -74,7 +81,7 @@ public class PurchaseRequestService {
                 "CREATOR", creator.getUsername(),
                 "APPROVER", approver.getUsername(),
                 "REQUISITION_STATUS", "DRAFT");
-        workflowService.startProcess("requisition_process", vars);
+        workflowService.startProcess("start_requisition_process", vars);
 
         return saved;
     }
